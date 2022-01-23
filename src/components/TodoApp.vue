@@ -12,13 +12,13 @@
         Add
       </button>
     </div>
-    <div class="alert alert-danger my-2" role="alert" id="show">
+    <div class="alert alert-danger my-2 d-none" role="alert" id="show">
       Please Enter your Task
     </div>
     <table class="table table-responsive">
       <thead class="table-light">
         <tr>
-          <th>ToDO</th>
+          <th style="width: 300px">ToDO</th>
           <th>Status</th>
           <th>Edit</th>
           <th>Delete</th>
@@ -26,8 +26,26 @@
       </thead>
       <tbody>
         <tr v-for="(todo, index) in todos" :key="index">
-          <td>{{ todo.name }}</td>
-          <td>{{ todo.status }}</td>
+          <td style="width: 300px">
+            <span
+              :class="{
+                'text-decoration-line-through': todo.status === 'Finished',
+              }"
+              >{{ todo.name }}</span
+            >
+          </td>
+          <td>
+            <span
+              @click="changeStatus(index)"
+              id="status"
+              :class="{
+                'text-danger': todo.status === 'Todo',
+                'text-warning': todo.status === 'In progress',
+                'text-success': todo.status === 'Finished',
+              }"
+              >{{ todo.status }}</span
+            >
+          </td>
           <td @click="editTodo(index)">
             <i class="fa fa-edit text-secondary"></i>
           </td>
@@ -47,24 +65,33 @@ export default {
     return {
       todo: "",
       editValue: null,
+      statusAvailable: ["Todo", "In progress", "Finished"],
       todos: [
-        { name: "kauf Apfel from Hofer es git ein Angebot ", status: "to-do" },
-        { name: "lehrn vue JS ", status: "done" },
+        { name: "kauf Apfel from Hofer es git ein Angebot ", status: "Todo" },
+        { name: "lehrn vue JS ", status: "In progress" },
+        { name: "lehrn HTML ", status: "Finished" },
       ],
     };
   },
   methods: {
+    changeStatus(index) {
+      let newIndex = this.statusAvailable.indexOf(this.todos[index].status);
+
+      if (++newIndex > 2) newIndex = 0; //our array hat 0 1 2 index when greater als 2 then put it 0
+
+      this.todos[index].status = this.statusAvailable[newIndex];
+    },
     handleInput() {
       if (this.todo.length === 0) {
         alert("Bitte Todo eintragen");
         document.querySelector("input").focus();
 
-        /*   document.getElementById("show").style.display = "block"; */ //her ich habe ein frage warum display nicht diese msg?
+        /*    document.getElementById("show").style.display = "block";  */ //her ich habe ein frage warum display nicht diese msg?
       } else {
         if (this.editValue === null) {
           this.todos.push({
             name: this.todo,
-            status: "to-do",
+            status: "Todo",
           });
         } else {
           this.todos[this.editValue].name = this.todo; //to avoid add new task instead of update it
@@ -87,8 +114,16 @@ export default {
 .fa {
   cursor: pointer;
 }
-#show {
-  display: none;
+#status {
+  cursor: pointer;
+  font-weight: bold;
+}
+.finished {
+  text-decoration: line-through;
+}
+td,
+th {
+  width: 120px;
 }
 </style>
 
